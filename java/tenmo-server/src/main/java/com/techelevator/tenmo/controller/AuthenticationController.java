@@ -83,6 +83,12 @@ public class AuthenticationController {
     	return userDAO.findBalanceById(id);
     }
     
+    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.PUT)
+    public void updateAccountBalance(@RequestBody BigDecimal balance, @PathVariable int id) {
+    	userDAO.update(balance, id);
+    	
+    }
+    
     
     
     

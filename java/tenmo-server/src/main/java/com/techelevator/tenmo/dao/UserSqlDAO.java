@@ -91,6 +91,13 @@ public class UserSqlDAO implements UserDAO {
 		return balance;
 	}
 	
+	@Override
+	public boolean update(BigDecimal amount, int id) {
+		String updateBalace = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+		return jdbcTemplate.update(updateBalace, amount, id) == 1;
+		
+	}
+	
 	  private User mapRowToUser(SqlRowSet rs) {
 	        User user = new User();
 	        user.setId(rs.getLong("user_id"));
@@ -100,4 +107,6 @@ public class UserSqlDAO implements UserDAO {
 	        user.setAuthorities("ROLE_USER");
 	        return user;
 	    }
+
+	
 }

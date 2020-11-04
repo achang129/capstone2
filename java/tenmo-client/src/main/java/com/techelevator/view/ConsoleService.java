@@ -78,7 +78,7 @@ public class ConsoleService {
 	}
 	
 	public int promptForUsers(User[] users, String action) {
-		int menuSelection = 0;
+		int menuSelection = 1;
 		System.out.println("------------------------------");
 		System.out.println("Users");
 		System.out.println("ID      Name");
@@ -91,17 +91,23 @@ public class ConsoleService {
 		if (in.hasNextInt()) {
 			menuSelection = in.nextInt();
 			in.nextLine();
-		} else if (menuSelection < 1) {
-			System.exit(0);
-		} else {
+		}else {
 			menuSelection = 999;
 		}
 		return menuSelection;
 	}
 	
 	public BigDecimal promptForAmount(int id) {
-		BigDecimal amount;
+		BigDecimal amount = null;
 		System.out.print("Enter Amount: ");
+		String userInput = in.nextLine();
+		try {
+			double result = Double.valueOf(userInput);
+			amount = BigDecimal.valueOf(result);
+		} catch(Exception ex) {
+			System.out.println("Something went wrong.");
+		}
+		return amount;
 		
 	}
 }

@@ -97,6 +97,18 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// TODO Auto-generated method stub
 		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
 		int userId = console.promptForUsers(allUsers, "sending to");
+		if(userId == 0) {
+			console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+		} else if (userId != currentUser.getUser().getId()) {
+			BigDecimal amount = console.promptForAmount(userId);
+			BigDecimal currentUsersBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+			BigDecimal currentUsersNewBalance = currentUsersBalance.subtract(amount);
+			BigDecimal sentUsersBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+			BigDecimal sentUsersNewBalance = sentUsersBalance.add(amount);
+			restTemplate.put(API_BASE_URL + "accounts/" + userId, sentUsersNewBalance);
+			restTemplate.put(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), currentUsersNewBalance);
+
+		}
 	}
 
 	private void requestBucks() {
