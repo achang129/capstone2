@@ -84,35 +84,41 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		// TODO View Transfer
 		
 	}
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+		// TODO View Pending
 		
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
 		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
 		int userId = console.promptForUsers(allUsers, "sending to");
 		if(userId == 0) {
 			console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-		} else if (userId != currentUser.getUser().getId()) {
+		} else if (userId != currentUser.getUser().getId() && userId < allUsers.length + 1 && userId > 0) {
 			BigDecimal amount = console.promptForAmount(userId);
 			BigDecimal currentUsersBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
-			BigDecimal currentUsersNewBalance = currentUsersBalance.subtract(amount);
 			BigDecimal sentUsersBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
-			BigDecimal sentUsersNewBalance = sentUsersBalance.add(amount);
-			restTemplate.put(API_BASE_URL + "accounts/" + userId, sentUsersNewBalance);
-			restTemplate.put(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), currentUsersNewBalance);
-
+			int result = amount.compareTo(currentUsersBalance);
+			if (result == -1) {
+				BigDecimal currentUsersNewBalance = currentUsersBalance.subtract(amount);
+				BigDecimal sentUsersNewBalance = sentUsersBalance.add(amount);
+				restTemplate.put(API_BASE_URL + "accounts/" + userId, sentUsersNewBalance);
+				restTemplate.put(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), currentUsersNewBalance);
+				System.out.println("Approved. " + currentUser.getUser().getUsername() + " sent " + amount + " TE Bucks to " + allUsers[userId - 1].getUsername());
+			} else {
+				System.out.println("Not enough funds in your account");
+			}
+		} else {
+			System.out.println("Invalid Option");
 		}
 	}
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
+		// TODO Request
 		
 	}
 	

@@ -93,8 +93,8 @@ public class UserSqlDAO implements UserDAO {
 	
 	@Override
 	public boolean update(BigDecimal amount, int id) {
-		String updateBalace = "UPDATE accounts SET balance = ? WHERE user_id = ?";
-		return jdbcTemplate.update(updateBalace, amount, id) == 1;
+		String updateBalance = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+		return jdbcTemplate.update(updateBalance, amount, id) == 1;
 		
 	}
 	
