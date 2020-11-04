@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -77,7 +78,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
 		BigDecimal currentBalance = null;
 		currentBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
 		System.out.println("Your current account balance is: " + currentBalance);
@@ -95,7 +95,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-		
+		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
+		int userId = console.promptForUsers(allUsers, "sending to");
 	}
 
 	private void requestBucks() {

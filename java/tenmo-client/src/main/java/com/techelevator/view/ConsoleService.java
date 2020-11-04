@@ -4,7 +4,10 @@ package com.techelevator.view;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.Scanner;
+
+import com.techelevator.tenmo.models.User;
 
 public class ConsoleService {
 
@@ -72,5 +75,33 @@ public class ConsoleService {
 			}
 		} while(result == null);
 		return result;
+	}
+	
+	public int promptForUsers(User[] users, String action) {
+		int menuSelection = 0;
+		System.out.println("------------------------------");
+		System.out.println("Users");
+		System.out.println("ID      Name");
+		System.out.println("------------------------------");
+		for (User user : users) {
+			System.out.println(user.getId() + "       " + user.getUsername());
+		}
+		System.out.println("");
+		System.out.print("Enter ID of user you are" + action + " (0 to cancel): ");
+		if (in.hasNextInt()) {
+			menuSelection = in.nextInt();
+			in.nextLine();
+		} else if (menuSelection < 1) {
+			System.exit(0);
+		} else {
+			menuSelection = 999;
+		}
+		return menuSelection;
+	}
+	
+	public BigDecimal promptForAmount(int id) {
+		BigDecimal amount;
+		System.out.print("Enter Amount: ");
+		
 	}
 }
