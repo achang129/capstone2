@@ -1,5 +1,8 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.http.HttpHeaders;
@@ -10,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -68,6 +72,20 @@ public class AuthenticationController {
             userDAO.create(newUser.getUsername(),newUser.getPassword());
         }
     }
+    
+    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
+    public List<User> listUsers(){
+    	return userDAO.findAll();
+    }
+    
+    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.GET)
+    public BigDecimal getAccountBalance(@PathVariable int id) {
+    	return userDAO.findBalanceById(id);
+    }
+    
+    
+    
+    
 
     /**
      * Object to return as body in JWT Authentication.

@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,13 +80,24 @@ public class UserSqlDAO implements UserDAO {
         return userCreated && accountCreated;
     }
 
-    private User mapRowToUser(SqlRowSet rs) {
-        User user = new User();
-        user.setId(rs.getLong("user_id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password_hash"));
-        user.setActivated(true);
-        user.setAuthorities("ROLE_USER");
-        return user;
-    }
+	@Override
+	public BigDecimal findBalanceById(int id) {
+		BigDecimal balance = null;
+		String getBalance = "SELECT balance FROM accounts WHERE user_id = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(getBalance, id);
+		if(result.next()) {
+			balance = result.getBigDecimal("balance");
+		}
+		return balance;
+	}
+	
+	  private User mapRowToUser(SqlRowSet rs) {
+	        User user = new User();
+	        user.setId(rs.getLong("user_id"));
+	        user.setUsername(rs.getString("username"));
+	        user.setPassword(rs.getString("password_hash"));
+	        user.setActivated(true);
+	        user.setAuthorities("ROLE_USER");
+	        return user;
+	    }
 }

@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserDAO {
@@ -13,4 +14,6 @@ public interface UserDAO {
     int findIdByUsername(String username);
 
     boolean create(String username, String password);
+    
+    BigDecimal findBalanceById(int id);
 }
