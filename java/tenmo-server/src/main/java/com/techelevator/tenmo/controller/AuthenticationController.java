@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.model.LoginDTO;
 import com.techelevator.tenmo.model.RegisterUserDTO;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserAlreadyExistsException;
 import com.techelevator.tenmo.security.jwt.JWTFilter;
@@ -85,8 +86,18 @@ public class AuthenticationController {
     
     @RequestMapping(value = "/accounts/{id}", method = RequestMethod.PUT)
     public void updateAccountBalance(@RequestBody BigDecimal balance, @PathVariable int id) {
-    	userDAO.update(balance, id);
+    	userDAO.updateAccounts(balance, id);
     	
+    }
+    
+    @RequestMapping(value = "/accounts/transfers", method = RequestMethod.POST)
+    public void createTranfsers(@Valid @RequestBody Transfer transfer) {
+    	userDAO.createTransfers(transfer);
+    }
+    
+    @RequestMapping(value = "/transfers/{id}", method = RequestMethod.GET)
+    public void getTransfers(@PathVariable int id) {
+    	userDAO.getTransfers(id);
     }
     
     

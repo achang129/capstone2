@@ -1,6 +1,7 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.User;
+import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -79,12 +81,26 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewCurrentBalance() {
 		BigDecimal currentBalance = null;
-		currentBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+		currentBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(),
+				HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
 		System.out.println("Your current account balance is: " + currentBalance);
 	}
 
 	private void viewTransferHistory() {
 		// TODO View Transfer
+		
+		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET,
+				makeAuthEntity(), User[].class).getBody();
+		Transfer[] transfers = restTemplate.exchange(API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
+				HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
+		int transferId = console.promptForTransfers(transfers, allUsers);
+		if(transferId == 0) {
+			console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+		}else if(transferId > transfers.length + 1 || transferId < 1) {
+			System.out.println("Please enter a vaild transfer ID");
+		}else {
+			console.displayTransferDetails(transferId);
+		}
 		
 	}
 

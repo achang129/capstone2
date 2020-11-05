@@ -7,12 +7,15 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
+import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.User;
 
 public class ConsoleService {
 
 	private PrintWriter out;
 	private Scanner in;
+	private Transfer[] transfers;
+	private User[] users;
 
 	public ConsoleService(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output, true);
@@ -108,6 +111,82 @@ public class ConsoleService {
 			System.out.println("Something went wrong.");
 		}
 		return amount;
+		
+	}
+	
+	public int promptForTransfers(Transfer[] transfers, User[] users) {
+		this.transfers = transfers;
+		this.users = users;
+		int transferSelection = 1;
+		String typeIdName = "";
+		String userName = "";
+		int typeId = 1;
+		System.out.println("------------------------------");
+		System.out.println("Transfers");
+		System.out.println("ID      From/To        Amount");
+		System.out.println("------------------------------");
+		for(Transfer transfer : transfers) {
+			typeId = transfer.getTypeId();
+			if(typeId == 1) {
+				typeIdName = "From: " ;
+			}else if(typeId == 2) {
+				typeIdName = "To: " ;
+			}for(User user : users) {
+				if(transfer.getAccountFromId() == user.getId()) {
+					userName = user.getUsername();
+				}else if(transfer.getAccountToId() == user.getId()) {
+					userName = user.getUsername();
+				}
+			}
+			System.out.println(transfer.getTransferId() + "      " + typeIdName + userName + "$ " + transfer.getAmount());
+		}
+		System.out.println("");
+		System.out.print("Please enter transfer ID to view details (0 to cancel): ");
+		if (in.hasNextInt()) {
+			transferSelection = in.nextInt();
+			in.nextLine();
+		}else {
+			transferSelection = 999;
+		}
+		return transferSelection;
+	}
+	
+	public void displayTransferDetails(int transferId) {
+		String fromUser = "";
+		String toUser = "";
+		String transferType = "";
+		String statusType = "";
+		BigDecimal amount = null;
+		System.out.println("-------------------");
+		System.out.println("Transfer Details");
+		System.out.println("-------------------");
+		System.out.println("Id: " + transferId);
+		for(Transfer transfer : transfers) {
+			amount = transfer.getAmount();
+			if(transfer.getTypeId() == 1) {
+				transferType = "Request";
+			}if(transfer.getTypeId() == 2) {
+				transferType = "Send";
+			}if(transfer.getStatusId() == 1) {
+				statusType = "Pending";
+			}if(transfer.getStatusId() == 2) {
+				statusType = "Approved";
+			}if(transfer.getStatusId() == 3) {
+				statusType = "Rejected";
+			}
+			for(User user : users) {
+				if(transfer.getAccountFromId() == user.getId()) {
+					fromUser = user.getUsername();
+				}else if(transfer.getAccountToId() == user.getId()) {
+					toUser = user.getUsername();
+				}
+			}
+		}
+		System.out.println("From: " + fromUser);
+		System.out.println("To: " + toUser);
+		System.out.println("Type: " + transferType);
+		System.out.println("Status: " + statusType);
+		System.out.println("Amount: " + amount);
 		
 	}
 }

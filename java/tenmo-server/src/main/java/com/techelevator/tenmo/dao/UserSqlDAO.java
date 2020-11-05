@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
 @Service
@@ -92,10 +93,36 @@ public class UserSqlDAO implements UserDAO {
 	}
 	
 	@Override
-	public boolean update(BigDecimal amount, int id) {
+	public boolean updateAccounts(BigDecimal amount, int id) {
 		String updateBalance = "UPDATE accounts SET balance = ? WHERE user_id = ?";
 		return jdbcTemplate.update(updateBalance, amount, id) == 1;
 		
+	}
+	
+	@Override
+	public boolean createTransfers(Transfer transfer) {
+		String createTranfer = "INSERT INTO transfers(transfer_type_id, transfer_status_id, account_from, account_to, amount)"
+								+ " VALUES(?, ?, ?, ?, ?)";
+		if(transfer.getAccountFromId() != transfer.getAccountToId()) {
+		return jdbcTemplate.update(createTranfer, transfer.getTypeId(), transfer.getStatusId()
+										, transfer.getAccountFromId(), transfer.getAccountToId(), transfer.getAmount()) == 1;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public List<Transfer> getTransfers(int id) {
+		List<Transfer> transfers = new ArrayList<>();
+		String getTransfers = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers, id, id);
+		
+		while(result.next()) {
+			Transfer transfer = mapRowToTransfer(result);
+			transfers.add(transfer);
+		}
+		
+		return transfers;
 	}
 	
 	  private User mapRowToUser(SqlRowSet rs) {
@@ -107,6 +134,21 @@ public class UserSqlDAO implements UserDAO {
 	        user.setAuthorities("ROLE_USER");
 	        return user;
 	    }
+	  
+	  private Transfer mapRowToTransfer(SqlRowSet rs) {
+		  Transfer transfer = new Transfer();
+		  transfer.setTransferId(rs.getInt("transfer_id"));
+		  transfer.setTypeId(rs.getInt("transfer_type_id"));
+		  transfer.setStatusId(rs.getInt("transfer_status_id"));
+		  transfer.setAccountFromId(rs.getInt("account_from"));
+		  transfer.setAccountToId(rs.getInt("account_to"));
+		  transfer.setAmount(rs.getBigDecimal("amount"));
+		  return transfer;
+	  }
+
+	
+
+	
 
 	
 }
