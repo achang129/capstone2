@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
@@ -86,24 +87,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("Your current account balance is: " + currentBalance);
 	}
 
-	private void viewTransferHistory() {
-		// TODO View Transfer
-		
-		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET,
-				makeAuthEntity(), User[].class).getBody();
-		Transfer[] transfers = restTemplate.exchange(API_BASE_URL + "transfers/" + currentUser.getUser().getId(),
-				HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
-		int transferId = console.promptForTransfers(transfers, allUsers);
-		if(transferId == 0) {
-			console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-		}else if(transferId > transfers.length + 1 || transferId < 1) {
-			System.out.println("Please enter a vaild transfer ID");
-		}else {
-			console.displayTransferDetails(transferId);
-		}
-		
-	}
-
 	private void viewPendingRequests() {
 		// TODO View Pending
 		
@@ -113,7 +96,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
 		int userId = console.promptForUsers(allUsers, "sending to");
 		if(userId == 0) {
-			console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+			//console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 		} else if (userId != currentUser.getUser().getId() && userId < allUsers.length + 1 && userId > 0) {
 			BigDecimal amount = console.promptForAmount(userId);
 			BigDecimal currentUsersBalance = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
@@ -125,12 +108,35 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				restTemplate.put(API_BASE_URL + "accounts/" + userId, sentUsersNewBalance);
 				restTemplate.put(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), currentUsersNewBalance);
 				System.out.println("Approved. " + currentUser.getUser().getUsername() + " sent " + amount + " TE Bucks to " + allUsers[userId - 1].getUsername());
+				//String amountString = amount.toString();
+				//double amountDouble = Double.valueOf(amountString);
+				Transfer newTransfer = new Transfer(2, 2, currentUser.getUser().getId(), userId, amount);
+				//Transfer[] transfers = new Transfer[] {newTransfer};
+				restTemplate.postForObject(API_BASE_URL + "transfers/", makeTransferEntity(newTransfer), Transfer.class);
 			} else {
 				System.out.println("Not enough funds in your account");
 			}
 		} else {
 			System.out.println("Invalid Option");
 		}
+	}
+	
+	private void viewTransferHistory() {
+		// TODO View Transfer
+		
+		User[] allUsers = restTemplate.exchange(API_BASE_URL + "accounts/", HttpMethod.GET,
+				makeAuthEntity(), User[].class).getBody();
+		Transfer[] transfers = restTemplate.exchange(API_BASE_URL + "transfers/",
+				HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
+		int transferId = console.promptForTransfers(transfers, allUsers);
+		if(transferId == 0) {
+			//console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+		}else if(transferId > transfers.length + 1 || transferId < 1) {
+			System.out.println("Please enter a vaild transfer ID");
+		}else {
+			console.displayTransferDetails(transferId);
+		}
+		
 	}
 
 	private void requestBucks() {
@@ -204,4 +210,12 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	    HttpEntity entity = new HttpEntity<>(headers);
 	    return entity;
 	  }
+	
+	private HttpEntity<Transfer> makeTransferEntity(Transfer transfer){
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(AUTH_TOKEN);
+		HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
+		return entity;
+	}
 }

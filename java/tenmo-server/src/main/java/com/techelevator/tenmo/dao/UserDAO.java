@@ -24,4 +24,6 @@ public interface UserDAO {
     
     List<Transfer> getTransfers(int id);
     
+    List<Transfer> getAllTransfers();
+    
 }

@@ -90,7 +90,12 @@ public class AuthenticationController {
     	
     }
     
-    @RequestMapping(value = "/accounts/transfers", method = RequestMethod.POST)
+    @RequestMapping(path = "/transfers/", method = RequestMethod.GET)
+    public List<Transfer> list(){
+    	return userDAO.getAllTransfers();
+    }
+    
+    @RequestMapping(value = "/transfers/", method = RequestMethod.POST)
     public void createTranfsers(@Valid @RequestBody Transfer transfer) {
     	userDAO.createTransfers(transfer);
     }

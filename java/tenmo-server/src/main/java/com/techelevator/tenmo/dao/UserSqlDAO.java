@@ -114,7 +114,7 @@ public class UserSqlDAO implements UserDAO {
 	@Override
 	public List<Transfer> getTransfers(int id) {
 		List<Transfer> transfers = new ArrayList<>();
-		String getTransfers = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
+		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers WHERE account_from = ? OR account_to = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers, id, id);
 		
 		while(result.next()) {
@@ -124,6 +124,21 @@ public class UserSqlDAO implements UserDAO {
 		
 		return transfers;
 	}
+	
+	@Override
+	public List<Transfer> getAllTransfers() {
+		List<Transfer> transfers = new ArrayList<>();
+		String getTransfers = "SELECT * FROM transfers";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers);
+		
+		while(result.next()) {
+			Transfer transfer = mapRowToTransfer(result);
+			transfers.add(transfer);
+		}
+		
+		return transfers;
+	}
+
 	
 	  private User mapRowToUser(SqlRowSet rs) {
 	        User user = new User();
@@ -146,6 +161,7 @@ public class UserSqlDAO implements UserDAO {
 		  return transfer;
 	  }
 
+	
 	
 
 	

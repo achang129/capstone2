@@ -10,7 +10,19 @@ public class Transfer {
 	private int accountFromId;
 	private int accountToId;
 	private BigDecimal amount;
+	private double amountDouble;
 
+	public Transfer(int typeId, int statusId, int accountFromId, int accountToId, BigDecimal amount) {
+		this.typeId = typeId;
+		this.statusId = statusId;
+		this.accountFromId = accountFromId;
+		this.accountToId = accountToId;
+		this.amount = amount;
+	}
+	
+	public Transfer() {
+		
+	}
 	
 	public int getTransferId() {
 		return transferId;
@@ -44,6 +56,14 @@ public class Transfer {
 	}
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+
+	public double getAmountDouble() {
+		return amountDouble;
+	}
+
+	public void setAmountDouble(double amountDouble) {
+		this.amountDouble = amountDouble;
 	}
 	
 

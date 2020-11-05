@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
+import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.User;
 
@@ -16,6 +17,7 @@ public class ConsoleService {
 	private Scanner in;
 	private Transfer[] transfers;
 	private User[] users;
+	private AuthenticatedUser currentUser;
 
 	public ConsoleService(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output, true);
@@ -82,12 +84,12 @@ public class ConsoleService {
 	
 	public int promptForUsers(User[] users, String action) {
 		int menuSelection = 1;
-		System.out.println("------------------------------");
+		System.out.println("------------------------------------");
 		System.out.println("Users");
-		System.out.println("ID      Name");
-		System.out.println("------------------------------");
+		System.out.println("ID\tName");
+		System.out.println("------------------------------------");
 		for (User user : users) {
-			System.out.println(user.getId() + "       " + user.getUsername());
+			System.out.println(user.getId() + "\t" + user.getUsername());
 		}
 		System.out.println("");
 		System.out.print("Enter ID of user you are" + action + " (0 to cancel): ");
@@ -120,25 +122,21 @@ public class ConsoleService {
 		int transferSelection = 1;
 		String typeIdName = "";
 		String userName = "";
-		int typeId = 1;
-		System.out.println("------------------------------");
+		System.out.println("------------------------------------");
 		System.out.println("Transfers");
-		System.out.println("ID      From/To        Amount");
-		System.out.println("------------------------------");
+		System.out.println("ID\tFrom/To \tAmount");
+		System.out.println("------------------------------------");
 		for(Transfer transfer : transfers) {
-			typeId = transfer.getTypeId();
-			if(typeId == 1) {
-				typeIdName = "From: " ;
-			}else if(typeId == 2) {
-				typeIdName = "To: " ;
-			}for(User user : users) {
+			for(User user : users) {
 				if(transfer.getAccountFromId() == user.getId()) {
 					userName = user.getUsername();
+					typeIdName = "From: ";
 				}else if(transfer.getAccountToId() == user.getId()) {
 					userName = user.getUsername();
+					typeIdName = "To: ";
 				}
 			}
-			System.out.println(transfer.getTransferId() + "      " + typeIdName + userName + "$ " + transfer.getAmount());
+			System.out.println(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ " + transfer.getAmount());
 		}
 		System.out.println("");
 		System.out.print("Please enter transfer ID to view details (0 to cancel): ");
@@ -177,7 +175,7 @@ public class ConsoleService {
 			for(User user : users) {
 				if(transfer.getAccountFromId() == user.getId()) {
 					fromUser = user.getUsername();
-				}else if(transfer.getAccountToId() == user.getId()) {
+				}else if(transfer.getAccountFromId() != user.getId()) {
 					toUser = user.getUsername();
 				}
 			}

@@ -16,10 +16,18 @@ public class Transfer {
 	private int accountFromId;
 	@NotNull
 	private int accountToId;
-	@NotNull
+	@Min(value = 0)
 	private BigDecimal amount;
+
+	public Transfer(int typeId, int statusId, int accountFromId, int accountToId, BigDecimal amount) {
+		this.typeId = typeId;
+		this.statusId = statusId;
+		this.accountFromId = accountFromId;
+		this.accountToId = accountToId;
+		this.amount = amount;
+	}
 	
-	
+	public Transfer() {}
 	
 	public int getTransferId() {
 		return transferId;
