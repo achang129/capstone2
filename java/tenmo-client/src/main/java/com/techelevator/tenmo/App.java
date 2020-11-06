@@ -128,16 +128,23 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				makeAuthEntity(), User[].class).getBody();
 		Transfer[] transfers = restTemplate.exchange(API_BASE_URL + "transfers/",
 				HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
-		int transferId = console.promptForTransfers(transfers, allUsers);
-		if(transferId == 0) {
-			//console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-		}else if(transferId > transfers.length + 1 || transferId < 1) {
+		int transferId = console.promptForTransfers(transfers, allUsers, transfers.length);
+		if(transferId > 0) {
+			for(Transfer transfer : transfers) {
+				if(transferId == transfer.getTransferId()) {
+					console.displayTransferDetails(transferId);
+				} else {
+					System.out.println("Please enter a vaild transfer ID");
+				}
+			}	
+		}else if(transferId == 0) {
+			
+		}
+		else {
 			System.out.println("Please enter a vaild transfer ID");
-		}else {
-			console.displayTransferDetails(transferId);
+		}
 		}
 		
-	}
 
 	private void requestBucks() {
 		// TODO Request

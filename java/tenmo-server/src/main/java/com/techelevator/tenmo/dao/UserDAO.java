@@ -15,15 +15,6 @@ public interface UserDAO {
     int findIdByUsername(String username);
 
     boolean create(String username, String password);
-    
-    BigDecimal findBalanceById(int id);
-    
-    boolean updateAccounts(BigDecimal amount, int id);
-    
-    boolean createTransfers(Transfer transfer);
-    
-    List<Transfer> getTransfers(int id);
-    
-    List<Transfer> getAllTransfers();
+   
     
 }

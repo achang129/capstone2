@@ -73,41 +73,7 @@ public class AuthenticationController {
             userDAO.create(newUser.getUsername(),newUser.getPassword());
         }
     }
-    
-    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
-    public List<User> listUsers(){
-    	return userDAO.findAll();
-    }
-    
-    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.GET)
-    public BigDecimal getAccountBalance(@PathVariable int id) {
-    	return userDAO.findBalanceById(id);
-    }
-    
-    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.PUT)
-    public void updateAccountBalance(@RequestBody BigDecimal balance, @PathVariable int id) {
-    	userDAO.updateAccounts(balance, id);
-    	
-    }
-    
-    @RequestMapping(path = "/transfers/", method = RequestMethod.GET)
-    public List<Transfer> list(){
-    	return userDAO.getAllTransfers();
-    }
-    
-    @RequestMapping(value = "/transfers/", method = RequestMethod.POST)
-    public void createTranfsers(@Valid @RequestBody Transfer transfer) {
-    	userDAO.createTransfers(transfer);
-    }
-    
-    @RequestMapping(value = "/transfers/{id}", method = RequestMethod.GET)
-    public void getTransfers(@PathVariable int id) {
-    	userDAO.getTransfers(id);
-    }
-    
-    
-    
-    
+  
 
     /**
      * Object to return as body in JWT Authentication.

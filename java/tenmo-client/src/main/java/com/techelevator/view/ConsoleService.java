@@ -116,10 +116,11 @@ public class ConsoleService {
 		
 	}
 	
-	public int promptForTransfers(Transfer[] transfers, User[] users) {
+	public int promptForTransfers(Transfer[] transfers, User[] users, int numberOfTransfers) {
 		this.transfers = transfers;
 		this.users = users;
 		int transferSelection = 1;
+		int counter = 0;
 		String typeIdName = "";
 		String userName = "";
 		System.out.println("------------------------------------");
@@ -127,13 +128,17 @@ public class ConsoleService {
 		System.out.println("ID\tFrom/To \tAmount");
 		System.out.println("------------------------------------");
 		for(Transfer transfer : transfers) {
-			for(User user : users) {
-				if(transfer.getAccountFromId() == user.getId()) {
-					userName = user.getUsername();
-					typeIdName = "From: ";
-				}else if(transfer.getAccountToId() == user.getId()) {
-					userName = user.getUsername();
-					typeIdName = "To: ";
+				for(User user : users) {
+					if(counter < numberOfTransfers) {
+						if(transfer.getAccountFromId() == user.getId() && currentUser.getUser().getId() != transfer.getAccountFromId()) {
+							userName = user.getUsername();
+							typeIdName = "From: ";
+							counter++;
+						}else if(transfer.getAccountToId() == user.getId() && currentUser.getUser().getId() != transfer.getAccountToId()) {
+							userName = user.getUsername();
+							typeIdName = "To: ";
+							counter++;
+						}
 				}
 			}
 			System.out.println(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ " + transfer.getAmount());
