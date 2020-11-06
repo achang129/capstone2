@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
@@ -123,6 +125,7 @@ public class ConsoleService {
 		int counter = 0;
 		String typeIdName = "";
 		String userName = "";
+		List<String> allTransfers = new ArrayList<>();
 		System.out.println("------------------------------------");
 		System.out.println("Transfers");
 		System.out.println("ID\tFrom/To \tAmount");
@@ -130,18 +133,24 @@ public class ConsoleService {
 		for(Transfer transfer : transfers) {
 				for(User user : users) {
 					if(counter < numberOfTransfers) {
-						if(transfer.getAccountFromId() == user.getId() && currentUser.getUser().getId() != transfer.getAccountFromId()) {
+						if(transfer.getAccountFromId() == user.getId()) {
 							userName = user.getUsername();
 							typeIdName = "From: ";
-							counter++;
-						}else if(transfer.getAccountToId() == user.getId() && currentUser.getUser().getId() != transfer.getAccountToId()) {
+						}else if(transfer.getAccountToId() == user.getId()) {
 							userName = user.getUsername();
 							typeIdName = "To: ";
-							counter++;
-						}
+						}	
+					}
+					allTransfers.add(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ " + transfer.getAmount().toString());
 				}
+				counter++;
+		}
+		counter = 1;
+		for (String transfer : allTransfers) {
+			if (counter % 2 == 1) {
+				System.out.println(transfer);
 			}
-			System.out.println(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ " + transfer.getAmount());
+			counter++;
 		}
 		System.out.println("");
 		System.out.print("Please enter transfer ID to view details (0 to cancel): ");

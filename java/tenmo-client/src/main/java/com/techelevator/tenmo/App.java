@@ -129,21 +129,18 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		Transfer[] transfers = restTemplate.exchange(API_BASE_URL + "transfers/",
 				HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
 		int transferId = console.promptForTransfers(transfers, allUsers, transfers.length);
-		if(transferId > 0) {
+		if(transferId  != 0) {
 			for(Transfer transfer : transfers) {
-				if(transferId == transfer.getTransferId()) {
+				if (transferId == transfer.getTransferId()) {
 					console.displayTransferDetails(transferId);
+					break;
 				} else {
-					System.out.println("Please enter a vaild transfer ID");
+					System.out.println("Please enter a valid transfer ID");
+					break;
 				}
 			}	
-		}else if(transferId == 0) {
-			
 		}
-		else {
-			System.out.println("Please enter a vaild transfer ID");
-		}
-		}
+	}
 		
 
 	private void requestBucks() {
