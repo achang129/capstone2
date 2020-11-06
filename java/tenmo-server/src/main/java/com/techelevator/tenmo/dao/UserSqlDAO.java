@@ -1,6 +1,5 @@
 package com.techelevator.tenmo.dao;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
 @Service
