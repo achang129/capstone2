@@ -29,11 +29,19 @@ public class TransferSqlDAO implements TransferDAO {
 			return false;
 		}
 	}
+	
+	@Override
+	public boolean updateTransferStatus(Transfer changedTransfer) {
+		String updateTransferStatus = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?";
+		return jdbcTemplate.update(updateTransferStatus, changedTransfer.getStatusId(), changedTransfer.getTransferId()) == 1;
+	
+	}
 
 	@Override
-	public List<Transfer> getTransfers(int id) {
+	public List<Transfer> getPendingTransfers(int id) {
 		List<Transfer> transfers = new ArrayList<>();
-		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers WHERE account_from = ? OR account_to = ?";
+		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount "
+				+ "FROM transfers WHERE transfer_status_id = 1 AND (account_from = ? OR account_to = ?)";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers, id, id);
 
 		while (result.next()) {
@@ -58,35 +66,9 @@ public class TransferSqlDAO implements TransferDAO {
 		return transfers;
 	}
 	
-	@Override
-	public List<Transfer> getFromTransfers() {
-		List<Transfer> transfers = new ArrayList<>();
-		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to,u.user_id, u.username "
-				+ "FROM transfers t INNER JOIN accounts a ON t.account_from=a.account_id  INNER JOIN users u ON a.user_id = u.user_id";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers);
-
-		while (result.next()) {
-			Transfer transfer = mapRowToTransfer(result);
-			transfers.add(transfer);
-		}
-
-		return transfers;
-	}
 	
-	@Override
-	public List<Transfer> getToTransfers() {
-		List<Transfer> transfers = new ArrayList<>();
-		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, z.user_id, z.username "
-				+ "FROM transfers t INNER JOIN accounts b ON t.account_to = b.account_id INNER JOIN users z ON b.user_id = z.user_id";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers);
 
-		while (result.next()) {
-			Transfer transfer = mapRowToTransfer(result);
-			transfers.add(transfer);
-		}
-
-		return transfers;
-	}
+	
 
 	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer transfer = new Transfer();
@@ -99,4 +81,5 @@ public class TransferSqlDAO implements TransferDAO {
 		return transfer;
 	}
 
+	
 }

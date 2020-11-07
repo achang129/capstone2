@@ -17,46 +17,75 @@ import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.Transfer;
 
 public class TransferService {
-	
+
 	private final String BASE_URL;
-	
+
 	public static String AUTH_TOKEN = "";
 	private AuthenticatedUser currentUser;
 	private Scanner in;
 	private final RestTemplate restTemplate = new RestTemplate();
-	
+
 	private Transfer[] transfers;
 	private User[] users;
-	
+
 	public TransferService(String baseURL, AuthenticatedUser currentUser, InputStream input) {
 		this.BASE_URL = baseURL;
 		this.currentUser = currentUser;
 		this.in = new Scanner(input);
 	}
-	
+
 	public TransferService(String baseURL, InputStream input) {
 		this.BASE_URL = baseURL;
 		this.in = new Scanner(input);
 	}
-	
+
 	public void viewTransferHistory(AuthenticatedUser currentUser) {
-		User[] allUsers = restTemplate.exchange(BASE_URL + "accounts/", HttpMethod.GET,
-				makeAuthEntity(currentUser.getToken()), User[].class).getBody();
-		Transfer[] transfers = restTemplate.exchange(BASE_URL + "transfers/",
-				HttpMethod.GET, makeAuthEntity(currentUser.getToken()), Transfer[].class).getBody();
+		User[] allUsers = restTemplate
+				.exchange(BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(currentUser.getToken()), User[].class)
+				.getBody();
+		Transfer[] transfers = restTemplate.exchange(BASE_URL + "transfers/", HttpMethod.GET,
+				makeAuthEntity(currentUser.getToken()), Transfer[].class).getBody();
 		int transferId = promptForTransfers(transfers, allUsers, transfers.length);
-		if(transferId  != 0) {
-			for(Transfer transfer : transfers) {
+		if (transferId != 0) {
+			for (Transfer transfer : transfers) {
 				if (transferId == transfer.getTransferId()) {
 					displayTransferDetails(transferId);
 					break;
-				} 
-			}	
-		} else {	// TODO Catch Invalid IDs
+				}
+			}
+		} else { // TODO Catch Invalid IDs
 			System.out.println("Please enter a valid transfer ID");
 		}
 	}
-	
+
+	public void viewPendingTransferHistory(AuthenticatedUser currentUser) {
+		int pendingTransferSelection = 0;
+		List<Transfer> pendingTransfers = new ArrayList<>();
+		User[] allUsers = restTemplate.exchange(BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(currentUser.getToken()), User[].class)
+				.getBody();
+		Transfer[] transfers = restTemplate.exchange(BASE_URL + "transfers/",
+				HttpMethod.GET, makeAuthEntity(currentUser.getToken()), Transfer[].class).getBody();
+		for(Transfer pendingTransfer : transfers) {
+			if(pendingTransfer.getStatusId() == 1) {
+				pendingTransfers.add(pendingTransfer);
+			}
+		}
+		int transferId = promptForPendingTransfers(pendingTransfers, allUsers, transfers.length);
+		if (transferId != 0) {
+			for (Transfer transfer : transfers) {
+				if (transferId == transfer.getTransferId()) {
+					pendingTransferSelection = displayPendingTransferDetails(transferId);
+					pendingTransferSelection += 1;
+					Transfer changedTransfer = new Transfer(transfer.getTransferId(), transfer.getTypeId(), pendingTransferSelection, transfer.getAccountFromId(), transfer.getAccountToId(), transfer.getAmount());
+					restTemplate.put(BASE_URL + "transfers/" + currentUser.getUser().getId(), makeTransferEntity(changedTransfer, currentUser.getToken()));
+					break;
+				}
+			}
+		} else { // TODO Catch Invalid IDs
+			System.out.println("Please enter a valid transfer ID");
+		}
+	}
+
 	public int promptForTransfers(Transfer[] transfers, User[] users, int numberOfTransfers) {
 		this.transfers = transfers;
 		this.users = users;
@@ -69,20 +98,21 @@ public class TransferService {
 		System.out.println("Transfers");
 		System.out.println("ID\tFrom/To \tAmount");
 		System.out.println("------------------------------------");
-		for(Transfer transfer : transfers) {
-				for(User user : users) {
-					if(counter < numberOfTransfers) {
-						if(transfer.getAccountFromId() == user.getId()) {
-							userName = user.getUsername();
-							typeIdName = "From: ";
-						}else if(transfer.getAccountToId() == user.getId()) {
-							userName = user.getUsername();
-							typeIdName = "To: ";
-						}	
+		for (Transfer transfer : transfers) {
+			for (User user : users) {
+				if (counter < numberOfTransfers) {
+					if (transfer.getAccountFromId() == user.getId()) {
+						userName = user.getUsername();
+						typeIdName = "From: ";
+					} else if (transfer.getAccountToId() == user.getId()) {
+						userName = user.getUsername();
+						typeIdName = "To: ";
 					}
-					allTransfers.add(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ " + transfer.getAmount().toString());
 				}
-				counter++;
+				allTransfers.add(transfer.getTransferId() + "\t" + typeIdName + userName + " \t$ "
+						+ transfer.getAmount().toString());
+			}
+			counter++;
 		}
 		counter = 1;
 		for (String transfer : allTransfers) {
@@ -96,12 +126,51 @@ public class TransferService {
 		if (in.hasNextInt()) {
 			transferSelection = in.nextInt();
 			in.nextLine();
-		}else {
+		} else {
 			transferSelection = 999;
 		}
 		return transferSelection;
 	}
-	
+
+	public int promptForPendingTransfers(List<Transfer> pendingTransfers, User[] users, int numberOfTransfers) {
+		int transferSelection = 1;
+		int counter = 0;
+		String userName = "";
+		List<String> allPendingTransfers = new ArrayList<>();
+		System.out.println("------------------------------------");
+		System.out.println("Pending Transfers");
+		System.out.println("ID\tTo \tAmount");
+		System.out.println("------------------------------------");
+		for (Transfer transfer : pendingTransfers) {
+			for (User user : users) {
+				if (counter < numberOfTransfers) {
+					if (transfer.getAccountToId() == user.getId()) {
+						userName = user.getUsername();
+						System.out.println(transfer.getTransferId() + "\t" + userName + "\t" + transfer.getAmount());
+					}
+				}
+				
+			}
+			counter++;
+	}
+//		counter = 1;
+//		for (String transfer : allPendingTransfers) {
+//			if (counter % 2 == 1) {
+//				System.out.println(transfer);
+//			}
+//			counter++;
+//		}
+		System.out.println("");
+		System.out.print("Please enter transfer ID to approve/reject (0 to cancel): ");
+		if (in.hasNextInt()) {
+			transferSelection = in.nextInt();
+			in.nextLine();
+		} else {
+			transferSelection = 999;
+		}
+		return transferSelection;
+	}
+
 	public void displayTransferDetails(int transferId) {
 		String fromUser = "";
 		String toUser = "";
@@ -112,27 +181,31 @@ public class TransferService {
 		System.out.println("Transfer Details");
 		System.out.println("-------------------");
 		System.out.println("Id: " + transferId);
-		for(Transfer transfer : transfers) {
+		for (Transfer transfer : transfers) {
 			if (transferId == transfer.getTransferId()) {
-			amount = transfer.getAmount();
-			if(transfer.getTypeId() == 1) {
-				transferType = "Request";
-			}if(transfer.getTypeId() == 2) {
-				transferType = "Send";
-			}if(transfer.getStatusId() == 1) {
-				statusType = "Pending";
-			}if(transfer.getStatusId() == 2) {
-				statusType = "Approved";
-			}if(transfer.getStatusId() == 3) {
-				statusType = "Rejected";
-			}
-			for(User user : users) {
-				if(transfer.getAccountFromId() == user.getId()) {
-					fromUser = user.getUsername();
-				}else if(transfer.getAccountFromId() != user.getId()) {
-					toUser = user.getUsername();
+				amount = transfer.getAmount();
+				if (transfer.getTypeId() == 1) {
+					transferType = "Request";
 				}
-			}
+				if (transfer.getTypeId() == 2) {
+					transferType = "Send";
+				}
+				if (transfer.getStatusId() == 1) {
+					statusType = "Pending";
+				}
+				if (transfer.getStatusId() == 2) {
+					statusType = "Approved";
+				}
+				if (transfer.getStatusId() == 3) {
+					statusType = "Rejected";
+				}
+				for (User user : users) {
+					if (transfer.getAccountFromId() == user.getId()) {
+						fromUser = user.getUsername();
+					} else if (transfer.getAccountFromId() != user.getId()) {
+						toUser = user.getUsername();
+					}
+				}
 			}
 		}
 		System.out.println("From: " + fromUser);
@@ -140,17 +213,34 @@ public class TransferService {
 		System.out.println("Type: " + transferType);
 		System.out.println("Status: " + statusType);
 		System.out.println("Amount: " + amount);
-		
+
 	}
 	
+	public int displayPendingTransferDetails(int transferId) {
+		int pendingTransferSelection = 0;
+		System.out.println("");
+		System.out.println("1: Approve");
+		System.out.println("2: Reject");
+		System.out.println("0: Don't approve or reject");
+		System.out.println("--------------------------");
+		System.out.print("Please choose an option: ");
+		if (in.hasNextInt()) {
+			pendingTransferSelection = in.nextInt();
+			in.nextLine();
+		} else {
+			pendingTransferSelection = 999;
+		}
+		return pendingTransferSelection;
+	}
+
 	private HttpEntity makeAuthEntity(String userToken) {
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setBearerAuth(userToken);
-	    HttpEntity entity = new HttpEntity<>(headers);
-	    return entity;
-	  }
-	
-	private HttpEntity<Transfer> makeTransferEntity(Transfer transfer, String userToken){
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(userToken);
+		HttpEntity entity = new HttpEntity<>(headers);
+		return entity;
+	}
+
+	private HttpEntity<Transfer> makeTransferEntity(Transfer transfer, String userToken) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setBearerAuth(userToken);

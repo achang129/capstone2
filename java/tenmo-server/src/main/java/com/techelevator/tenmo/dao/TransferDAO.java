@@ -8,12 +8,12 @@ public interface TransferDAO {
 
 	boolean createTransfers(Transfer transfer);
 
-	List<Transfer> getTransfers(int id);
+	List<Transfer> getPendingTransfers(int id);
 
 	List<Transfer> getAllTransfers();
 	
-	List<Transfer> getFromTransfers();
+	boolean updateTransferStatus(Transfer changedTransfer);
 	
-	List<Transfer> getToTransfers();
+	
 
 }

@@ -85,7 +85,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewPendingRequests() {
 		// TODO View Pending
-		
+		transferService.viewPendingTransferHistory(currentUser);
 	}
 
 	private void sendBucks() {
@@ -98,8 +98,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 
 	private void requestBucks() {
-		// TODO Request
-		
+		accountService.requestBuck(currentUser);
 	}
 	
 	private void exitProgram() {

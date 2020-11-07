@@ -36,8 +36,12 @@ public class TransferController {
 
 	@RequestMapping(value = "/transfers/{id}", method = RequestMethod.GET)
 	public void getTransfers(@PathVariable int id) {
-		transferDAO.getTransfers(id);
-
+		transferDAO.getPendingTransfers(id);
+	}
+	
+	@RequestMapping(value = "/transfers/{id}", method = RequestMethod.PUT)
+	public void updateTransferStatus(@Valid @RequestBody Transfer changedTransfer, @PathVariable int id) {
+		transferDAO.updateTransferStatus(changedTransfer);
 	}
 
 }
