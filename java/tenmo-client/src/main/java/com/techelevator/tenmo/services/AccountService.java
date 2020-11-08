@@ -22,15 +22,8 @@ public class AccountService {
 	private final String BASE_URL;
 	
 	public static String AUTH_TOKEN = "";
-	private AuthenticatedUser currentUser;
 	private Scanner in;
 	private final RestTemplate restTemplate = new RestTemplate();
-	
-	public AccountService(String baseURL, AuthenticatedUser currentUser, InputStream input) {
-		this.BASE_URL = baseURL;
-		this.currentUser = currentUser;
-		this.in = new Scanner(input);
-	}
 	
 	public AccountService(String baseURL, InputStream input) {
 		this.BASE_URL = baseURL;
@@ -46,7 +39,9 @@ public class AccountService {
 	
 	public void sendBucks(AuthenticatedUser currentUser) {
 		User[] allUsers = restTemplate.exchange(BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(currentUser.getToken()), User[].class).getBody();
-		int userId = promptForUsers(allUsers, " sending to");
+		int userId = 0;
+		in = new Scanner(System.in);
+		userId = promptForUsers(allUsers, " sending to");
 		if(userId == 0) {
 			//console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 		} else if (userId != currentUser.getUser().getId() && userId < allUsers.length + 1 && userId > 0) {
@@ -54,7 +49,7 @@ public class AccountService {
 			BigDecimal currentUsersBalance = restTemplate.exchange(BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(currentUser.getToken()), BigDecimal.class).getBody();
 			BigDecimal sentUsersBalance = restTemplate.exchange(BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(currentUser.getToken()), BigDecimal.class).getBody();
 			int result = amount.compareTo(currentUsersBalance);
-			if (result == -1) {
+			if (result == -1 || result == 0) {
 				BigDecimal currentUsersNewBalance = currentUsersBalance.subtract(amount);
 				BigDecimal sentUsersNewBalance = sentUsersBalance.add(amount);
 				restTemplate.put(BASE_URL + "accounts/" + userId, makeUserEntity(sentUsersNewBalance, currentUser.getToken()));
@@ -76,12 +71,11 @@ public class AccountService {
 	
 	public void requestBuck(AuthenticatedUser currentUser) {
 		User[] allUsers = restTemplate.exchange(BASE_URL + "accounts/", HttpMethod.GET, makeAuthEntity(currentUser.getToken()), User[].class).getBody();
+		in = new Scanner(System.in);
 		int userId = promptForUsers(allUsers, " requesting from");
 		if(userId == 0) {
 		}else if (userId != currentUser.getUser().getId() && userId < allUsers.length + 1 && userId > 0) {
 			BigDecimal amount = promptForAmount(userId);
-			BigDecimal currentUsersBalance = restTemplate.exchange(BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(currentUser.getToken()), BigDecimal.class).getBody();
-			BigDecimal sentUsersBalance = restTemplate.exchange(BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(currentUser.getToken()), BigDecimal.class).getBody();
 			Transfer newTransfer = new Transfer(1, 1, userId, currentUser.getUser().getId(), amount);
 			restTemplate.postForObject(BASE_URL + "transfers/", makeTransferEntity(newTransfer, currentUser.getToken()), Transfer.class);
 			System.out.println("Approved. " + currentUser.getUser().getUsername() + " requested " + amount + " TE Bucks from " + allUsers[userId - 1].getUsername());

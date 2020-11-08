@@ -34,7 +34,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticationService authenticationService;
     private AccountService accountService;
     private TransferService transferService;
-    private final RestTemplate restTemplate = new RestTemplate();
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL, System.in), new TransferService(API_BASE_URL, System.in));
@@ -84,7 +83,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewPendingRequests() {
-		// TODO View Pending
 		transferService.viewPendingTransferHistory(currentUser);
 	}
 

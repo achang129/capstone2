@@ -41,8 +41,8 @@ public class TransferSqlDAO implements TransferDAO {
 	public List<Transfer> getPendingTransfers(int id) {
 		List<Transfer> transfers = new ArrayList<>();
 		String getTransfers = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount "
-				+ "FROM transfers WHERE transfer_status_id = 1 AND (account_from = ? OR account_to = ?)";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers, id, id);
+				+ "FROM transfers WHERE transfer_status_id = 1 AND account_to = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(getTransfers, id);
 
 		while (result.next()) {
 			Transfer transfer = mapRowToTransfer(result);

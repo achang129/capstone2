@@ -6,15 +6,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-import com.techelevator.tenmo.models.Transfer;
-import com.techelevator.tenmo.models.User;
-
 public class ConsoleService {
 
 	private PrintWriter out;
 	private Scanner in;
-	private Transfer[] transfers;
-	private User[] users;
 
 	public ConsoleService(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output, true);
